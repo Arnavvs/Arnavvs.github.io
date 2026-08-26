@@ -79,7 +79,11 @@ body {
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
-  overflow-x: hidden;
+  /* `clip` rather than `hidden`. Both contain horizontal overflow, but
+     `hidden` makes the body a scroll container, which in some browsers stops
+     `position: sticky` descendants (the About sidebar) from pinning. Current
+     Chrome handles `hidden` fine here — this is defensive, not a fix. */
+  overflow-x: clip;
 }
 
 /* The faint grid that makes the page feel like a screen rather than a page.

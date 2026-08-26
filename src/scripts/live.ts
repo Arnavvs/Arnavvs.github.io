@@ -47,11 +47,14 @@ function initReveal(): void {
     return;
   }
 
+  let revealed = 0;
+
   const io = new IntersectionObserver(
     (entries) => {
       for (const entry of entries) {
         if (!entry.isIntersecting) continue;
         entry.target.classList.add('is-visible');
+        revealed += 1;
         io.unobserve(entry.target);
       }
     },
@@ -59,6 +62,18 @@ function initReveal(): void {
   );
 
   targets.forEach((t) => io.observe(t));
+
+  /**
+   * Failsafe. Everything here starts at opacity 0, so if the observer never
+   * fires the whole page renders blank — a far worse outcome than losing an
+   * animation. On a healthy page the above-the-fold targets reveal within a
+   * frame or two, so "nothing at all after 2s" is a reliable signal that
+   * IntersectionObserver isn't working, and we just show everything.
+   */
+  window.setTimeout(() => {
+    if (revealed > 0) return;
+    targets.forEach((t) => t.classList.add('is-visible'));
+  }, 2000);
 }
 
 /* ================================================== 3. relative timestamps */

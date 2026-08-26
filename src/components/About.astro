@@ -73,9 +73,14 @@ const edu = site.education;
     margin-top: 1.1rem;
   }
 
+  /* The prose column is roughly three times the height of this one, so pin it
+     rather than leaving a column of dead space beside the text. 76px clears
+     the sticky nav. */
   .about__side {
     display: grid;
     gap: 2rem;
+    position: sticky;
+    top: 76px;
   }
 
   .about__avatar {
@@ -155,6 +160,12 @@ const edu = site.education;
   @media (max-width: 900px) {
     .about {
       grid-template-columns: 1fr;
+    }
+
+    /* Stacked, there is nothing to sit alongside — sticky would just make the
+       block hover oddly as you scroll past it. */
+    .about__side {
+      position: static;
     }
   }
 </style>
