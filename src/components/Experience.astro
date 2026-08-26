@@ -7,7 +7,7 @@ const roles = site.experience;
 <section id="experience" class="section section--tight">
   <div class="wrap">
     <div class="section-head">
-      <span class="section-head__num">04</span>
+      <span class="section-head__num">02</span>
       <h2 class="section-head__title">Experience</h2>
       <span class="section-head__rule"></span>
     </div>
@@ -42,6 +42,17 @@ const roles = site.experience;
             </header>
 
             <p class="exp__summary">{r.summary}</p>
+
+            {r.metrics.length > 0 && (
+              <ul class="exp__metrics">
+                {r.metrics.map((m) => (
+                  <li class="exp__metric">
+                    <span class="exp__metric-value mono">{m.value}</span>
+                    <span class="exp__metric-label mono">{m.label}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
 
             {r.projects.map((proj) => (
               <div class="exp__proj">
@@ -133,7 +144,41 @@ const roles = site.experience;
     font-size: 0.92rem;
     color: var(--fg-dim);
     max-width: 72ch;
+    margin-bottom: 1.2rem;
+  }
+
+  /* Numbers first — they are what a reader scans for, and they carry the
+     weight the bullets used to carry in prose. */
+  .exp__metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
     margin-bottom: 1.4rem;
+  }
+
+  .exp__metric {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    padding: 0.5rem 0.85rem;
+    background: var(--bg-2);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+
+  .exp__metric-value {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+
+  .exp__metric-label {
+    font-size: 0.66rem;
+    color: var(--fg-dim);
   }
 
   /* Each workstream gets a rule + label so two projects under one employer

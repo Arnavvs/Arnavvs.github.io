@@ -1,0 +1,157 @@
+---
+// "Guess the language" — the shell only; rounds are rendered by the script.
+// Kept next to the Wordle in the Play section.
+---
+
+<div class="guess" data-guess>
+  <div class="guess__head">
+    <h3 class="guess__title">Guess the language</h3>
+    <span class="guess__progress mono" data-guess-progress></span>
+  </div>
+
+  <div class="guess__code" data-guess-code></div>
+
+  <div class="guess__options" data-guess-options></div>
+
+  <div class="guess__feedback" data-guess-feedback hidden></div>
+
+  <button class="btn mono guess__reset" data-guess-reset type="button" hidden>play again →</button>
+</div>
+
+<script>
+  import { bootGuess } from '../scripts/guess';
+  bootGuess();
+</script>
+
+<style>
+  .guess {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    padding: clamp(1.25rem, 3vw, 1.75rem);
+    background: linear-gradient(180deg, var(--bg-1), transparent);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  .guess__head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .guess__title {
+    font-size: 1.05rem;
+  }
+
+  .guess__progress {
+    font-size: 0.72rem;
+    color: var(--fg-faint);
+    white-space: nowrap;
+  }
+
+  /* The snippet box is a fixed height so the options don't jump between rounds
+     as snippets of different lengths come up. */
+  .guess__code {
+    min-height: 132px;
+    display: flex;
+    align-items: center;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    overflow-x: auto;
+  }
+
+  .guess__code :global(.guess__pre) {
+    margin: 0;
+    padding: 0.9rem 1rem;
+    font-family: var(--mono);
+    font-size: 0.76rem;
+    line-height: 1.55;
+    color: var(--fg);
+    white-space: pre;
+    tab-size: 2;
+  }
+
+  .guess__options {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+  }
+
+  .guess__options :global(.guess__option) {
+    padding: 0.55rem 0.7rem;
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    transition: color 0.18s var(--ease), border-color 0.18s var(--ease),
+      background-color 0.18s var(--ease), opacity 0.18s var(--ease);
+  }
+
+  .guess__options :global(.guess__option:hover) {
+    color: var(--fg);
+    border-color: var(--line-2);
+  }
+
+  .guess__options :global(.guess__option[data-state='right']) {
+    color: var(--bg);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .guess__options :global(.guess__option[data-state='wrong']) {
+    color: var(--bg);
+    background: var(--rose);
+    border-color: var(--rose);
+  }
+
+  .guess__options :global(.guess__option[data-state='dim']) {
+    opacity: 0.35;
+  }
+
+  .guess__feedback {
+    min-height: 3.1rem;
+  }
+
+  .guess__feedback :global(.guess__verdict) {
+    font-size: 0.8rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .guess__feedback :global(.guess__verdict[data-correct='true']) {
+    color: var(--accent);
+  }
+
+  .guess__feedback :global(.guess__verdict[data-correct='false']) {
+    color: var(--rose);
+  }
+
+  .guess__feedback :global(.guess__tell) {
+    font-size: 0.79rem;
+    color: var(--fg-dim);
+  }
+
+  .guess__feedback :global(.guess__final) {
+    font-size: 0.9rem;
+    color: var(--fg-dim);
+  }
+
+  .guess__feedback :global(.guess__final b) {
+    color: var(--accent);
+    font-size: 1.15rem;
+  }
+
+  .guess__reset {
+    align-self: start;
+    font-size: 0.76rem;
+  }
+
+  @media (max-width: 420px) {
+    .guess__options {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

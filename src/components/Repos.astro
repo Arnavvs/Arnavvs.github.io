@@ -27,15 +27,14 @@ languages.sort((a, b) => (counts.get(b) ?? 0) - (counts.get(a) ?? 0));
 <section id="work" class="section">
   <div class="wrap">
     <div class="section-head">
-      <span class="section-head__num">02</span>
+      <span class="section-head__num">04</span>
       <h2 class="section-head__title">Everything else</h2>
       <span class="section-head__rule"></span>
       <span class="section-head__count mono" data-repo-count>{rows.length} repos</span>
     </div>
 
     <p class="repos__note mono">
-      <span class="repos__dollar">$</span> ls ~/github — pulled from the GitHub API on every page
-      load, so this list is never out of date.
+      <span class="repos__dollar">$</span> ls ~/github — live from the API, never stale.
     </p>
 
     <!-- Controls. Progressive enhancement: with JS off you simply see every
