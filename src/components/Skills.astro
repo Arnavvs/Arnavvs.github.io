@@ -1,0 +1,89 @@
+---
+import { site } from '../data/site';
+---
+
+<section id="skills" class="section section--tight">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-head__num">06</span>
+      <h2 class="section-head__title">Stack</h2>
+      <span class="section-head__rule"></span>
+    </div>
+
+    <div class="skills">
+      {
+        site.skills.map((group, i) => (
+          <div class="skills__group card" data-reveal style={`--delay:${i * 60}ms`}>
+            <h3 class="skills__title mono">
+              <span class="skills__num">{String(i + 1).padStart(2, '0')}</span>
+              {group.group}
+            </h3>
+            <ul class="skills__list">
+              {group.items.map((item) => (
+                <li class="skills__item mono">
+                  <span class="skills__marker" aria-hidden="true">
+                    ▸
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .skills {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .skills__group {
+    padding: 1.3rem 1.4rem 1.4rem;
+    transition-delay: var(--delay, 0ms);
+  }
+
+  .skills__title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--fg);
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .skills__num {
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+
+  .skills__list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.32rem;
+  }
+
+  .skills__item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    font-size: 0.78rem;
+    color: var(--fg-dim);
+  }
+
+  .skills__marker {
+    color: var(--fg-faint);
+    font-size: 0.6rem;
+    flex: none;
+  }
+</style>

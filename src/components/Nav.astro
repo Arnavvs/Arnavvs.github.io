@@ -1,0 +1,198 @@
+---
+import { site } from '../data/site';
+
+const links = [
+  { href: '#work', label: 'work' },
+  { href: '#projects', label: 'projects' },
+  { href: '#activity', label: 'activity' },
+  { href: '#about', label: 'about' },
+  { href: '#play', label: 'play' },
+  { href: '#contact', label: 'contact' },
+];
+---
+
+<header class="nav" data-nav>
+  <div class="wrap nav__inner">
+    <a href="#main" class="nav__brand mono">
+      <span class="nav__prompt">~/</span><span class="nav__name">arnav</span><span
+        class="nav__caret"></span>
+    </a>
+
+    <nav class="nav__links mono" aria-label="Sections">
+      {
+        links.map((l) => (
+          <a href={l.href} class="nav__link">
+            {l.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <div class="nav__right">
+      <button
+        class="nav__cmd mono"
+        data-terminal-open
+        aria-label="Open the terminal"
+        title="Open the terminal"
+      >
+        <span class="nav__cmd-glyph">&gt;_</span>
+        <kbd>Ctrl</kbd><kbd>K</kbd>
+      </button>
+      <a
+        href={site.links.github}
+        class="nav__icon"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="GitHub profile"
+      >
+        <svg viewBox="0 0 16 16" width="18" height="18" fill="currentColor" aria-hidden="true">
+          <path
+            d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"
+          ></path>
+        </svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+<style>
+  .nav {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.3s var(--ease), background-color 0.3s var(--ease);
+  }
+
+  /* live.ts sets data-scrolled once the page moves, so the bar only gains
+     weight when it is actually overlapping content. */
+  .nav[data-scrolled] {
+    background: rgba(7, 10, 11, 0.82);
+    backdrop-filter: blur(14px);
+    border-bottom-color: var(--line);
+  }
+
+  .nav__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    height: 60px;
+  }
+
+  .nav__brand {
+    display: flex;
+    align-items: center;
+    font-size: 0.92rem;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+
+  .nav__prompt {
+    color: var(--accent);
+  }
+
+  .nav__name {
+    color: var(--fg);
+  }
+
+  .nav__caret {
+    width: 7px;
+    height: 15px;
+    margin-left: 3px;
+    background: var(--accent);
+    animation: blink 1.2s steps(1) infinite;
+  }
+
+  @keyframes blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .nav__links {
+    display: flex;
+    gap: 1.6rem;
+    font-size: 0.82rem;
+  }
+
+  .nav__link {
+    position: relative;
+    color: var(--fg-dim);
+    transition: color 0.2s var(--ease);
+  }
+
+  .nav__link::before {
+    content: '';
+    position: absolute;
+    left: -0.7rem;
+    color: var(--accent);
+    opacity: 0;
+    transition: opacity 0.2s var(--ease);
+  }
+
+  .nav__link:hover {
+    color: var(--fg);
+  }
+
+  .nav__link:hover::before {
+    content: '/';
+    opacity: 1;
+  }
+
+  .nav__right {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+  }
+
+  .nav__cmd {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.55rem;
+    font-size: 0.78rem;
+    color: var(--fg-faint);
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    transition: border-color 0.2s var(--ease), color 0.2s var(--ease);
+  }
+
+  .nav__cmd:hover {
+    color: var(--accent);
+    border-color: var(--line-2);
+  }
+
+  .nav__cmd-glyph {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  .nav__icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    color: var(--fg-dim);
+    border-radius: var(--radius);
+    transition: color 0.2s var(--ease), background-color 0.2s var(--ease);
+  }
+
+  .nav__icon:hover {
+    color: var(--fg);
+    background: var(--bg-2);
+  }
+
+  @media (max-width: 860px) {
+    .nav__links {
+      display: none;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .nav__cmd kbd {
+      display: none;
+    }
+  }
+</style>

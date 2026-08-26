@@ -1,0 +1,215 @@
+---
+import { getGitHubData } from '../lib/github';
+import { relativeTime, eventGlyph, eventVerb, isoDate } from '../lib/format';
+
+const data = await getGitHubData();
+const events = data.events.slice(0, 8);
+---
+
+<section id="activity" class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-head__num">03</span>
+      <h2 class="section-head__title">Activity</h2>
+      <span class="section-head__rule"></span>
+      <span class="act__refresh mono" data-activity-status>streaming</span>
+    </div>
+
+    <div class="act" data-reveal>
+      <ol class="act__list" data-activity-list>
+        {
+          events.map((e) => (
+            <li class="act__item">
+              <span class="act__rail" aria-hidden="true">
+                <span class="act__glyph">{eventGlyph(e.type)}</span>
+              </span>
+
+              <div class="act__body">
+                <p class="act__text">
+                  {eventVerb(e.type)}{' '}
+                  <a
+                    class="act__repo mono link-underline"
+                    href={`https://github.com/${data.user.login}/${e.repo}`}
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    {e.repo}
+                  </a>
+                  {e.detail && <span class="act__detail mono"> · {e.detail}</span>}
+                </p>
+                <time
+                  class="act__time mono"
+                  datetime={isoDate(e.created_at)}
+                  data-relative={e.created_at}
+                >
+                  {relativeTime(e.created_at)}
+                </time>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+
+      {
+        events.length === 0 && (
+          <p class="act__empty mono">
+            <span class="act__empty-dollar">$</span> no public events in the last 90 days — GitHub
+            only keeps a short window.
+          </p>
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .act__refresh {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.66rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    white-space: nowrap;
+  }
+
+  .act__refresh::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    animation: pulse-dot 1.8s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    50% {
+      opacity: 0.2;
+    }
+  }
+
+  .act {
+    padding: 1.4rem 1.5rem;
+    background: linear-gradient(180deg, var(--bg-1), transparent);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  .act__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .act__item {
+    display: grid;
+    grid-template-columns: 22px minmax(0, 1fr);
+    gap: 0.9rem;
+  }
+
+  /* The vertical rail: a 1px line behind each glyph, stopping at the last row. */
+  .act__rail {
+    position: relative;
+    display: grid;
+    justify-items: center;
+  }
+
+  .act__rail::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--line);
+  }
+
+  .act__item:first-child .act__rail::before {
+    top: 14px;
+  }
+
+  .act__item:last-child .act__rail::before {
+    bottom: calc(100% - 14px);
+  }
+
+  .act__glyph {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    margin-top: 3px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--cyan);
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: 50%;
+  }
+
+  .act__item:first-child .act__glyph {
+    color: var(--accent);
+    border-color: rgba(74, 222, 128, 0.4);
+    background: var(--bg);
+  }
+
+  .act__body {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.3rem 0.8rem;
+    padding-bottom: 1.05rem;
+    min-width: 0;
+  }
+
+  .act__item:last-child .act__body {
+    padding-bottom: 0;
+  }
+
+  .act__text {
+    font-size: 0.87rem;
+    color: var(--fg-dim);
+  }
+
+  .act__repo {
+    color: var(--fg);
+  }
+
+  .act__repo:hover {
+    color: var(--accent);
+  }
+
+  .act__detail {
+    font-size: 0.78rem;
+    color: var(--fg-faint);
+  }
+
+  .act__time {
+    margin-left: auto;
+    font-size: 0.71rem;
+    color: var(--fg-faint);
+    white-space: nowrap;
+  }
+
+  .act__empty {
+    font-size: 0.8rem;
+    color: var(--fg-faint);
+  }
+
+  .act__empty-dollar {
+    color: var(--accent);
+    margin-right: 0.35rem;
+  }
+
+  @media (max-width: 560px) {
+    .act {
+      padding: 1.2rem 1rem;
+    }
+
+    .act__time {
+      margin-left: 0;
+      width: 100%;
+    }
+  }
+</style>

@@ -1,0 +1,144 @@
+---
+import { site } from '../data/site';
+
+const channels = [
+  { label: 'email', value: site.email, href: `mailto:${site.email}` },
+  { label: 'github', value: '@Arnavvs', href: site.links.github },
+  site.links.linkedin && {
+    label: 'linkedin',
+    // Derive the display text from the URL so it can't drift out of sync.
+    value: new URL(site.links.linkedin).pathname.replace(/\/$/, ''),
+    href: site.links.linkedin,
+  },
+  site.links.resume && { label: 'résumé', value: 'resume.pdf', href: site.links.resume },
+].filter(Boolean) as Array<{ label: string; value: string; href: string }>;
+---
+
+<section id="contact" class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-head__num">08</span>
+      <h2 class="section-head__title">Contact</h2>
+      <span class="section-head__rule"></span>
+    </div>
+
+    <div class="contact card" data-reveal>
+      <div class="contact__left">
+        <p class="contact__cmd mono">
+          <span class="contact__dollar">$</span> mail -s "hello"
+        </p>
+
+        <h3 class="contact__headline">
+          Building something where a small model has to do a big job?
+        </h3>
+
+        <p class="contact__sub">
+          I read everything that lands here. Fastest way to reach me is email — I usually reply
+          within a day.
+        </p>
+
+        <a class="btn btn--primary mono contact__cta" href={`mailto:${site.email}`}>
+          {site.email}
+        </a>
+      </div>
+
+      <ul class="contact__list">
+        {
+          channels.map((c) => (
+            <li class="contact__row">
+              <span class="contact__label mono">{c.label}</span>
+              <a
+                class="contact__value mono link-underline"
+                href={c.href}
+                target={c.href.startsWith('mailto:') ? undefined : '_blank'}
+                rel="noopener"
+              >
+                {c.value}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .contact {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    padding: clamp(1.75rem, 4vw, 2.75rem);
+  }
+
+  .contact__cmd {
+    font-size: 0.78rem;
+    color: var(--fg-faint);
+    margin-bottom: 0.9rem;
+  }
+
+  .contact__dollar {
+    color: var(--accent);
+    margin-right: 0.4rem;
+  }
+
+  .contact__headline {
+    font-size: clamp(1.3rem, 2.6vw, 1.8rem);
+    max-width: 20ch;
+    margin-bottom: 0.9rem;
+  }
+
+  .contact__sub {
+    font-size: 0.92rem;
+    color: var(--fg-dim);
+    max-width: 46ch;
+    margin-bottom: 1.5rem;
+  }
+
+  .contact__cta {
+    word-break: break-all;
+  }
+
+  .contact__list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0;
+    align-content: start;
+    border-top: 1px solid var(--line);
+  }
+
+  .contact__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .contact__label {
+    font-size: 0.68rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+  }
+
+  .contact__value {
+    font-size: 0.8rem;
+    color: var(--fg-dim);
+    text-align: right;
+    word-break: break-all;
+    transition: color 0.2s var(--ease);
+  }
+
+  .contact__value:hover {
+    color: var(--accent);
+  }
+
+  @media (max-width: 780px) {
+    .contact {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

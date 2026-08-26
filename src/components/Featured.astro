@@ -1,0 +1,284 @@
+---
+import { getGitHubData } from '../lib/github';
+import { FEATURED, OVERRIDES, EXTERNAL_PROJECTS, prettifyName } from '../data/projects';
+import { relativeTime, langColor } from '../lib/format';
+
+const data = await getGitHubData();
+const byName = new Map(data.repos.map((r) => [r.name, r]));
+
+/** Merge the curated layer onto whatever GitHub currently reports. */
+const repoCards = FEATURED.map((name) => {
+  const repo = byName.get(name);
+  const o = OVERRIDES[name] ?? {};
+  return {
+    name,
+    repo,
+    title: o.title ?? prettifyName(name),
+    blurb: o.blurb ?? repo?.description ?? '',
+    metric: o.metric,
+    demo: o.demo,
+    stack: o.stack ?? (repo?.language ? [repo.language] : []),
+    order: o.order ?? 99,
+    href: repo?.html_url ?? '',
+  };
+})
+  // A featured repo that has been deleted or made private shouldn't 404.
+  .filter((p) => p.repo);
+
+/** Work with no repo behind it — see EXTERNAL_PROJECTS. */
+const externalCards = EXTERNAL_PROJECTS.map((p) => ({
+  name: p.title,
+  repo: undefined,
+  title: p.title,
+  blurb: p.blurb,
+  metric: p.metric,
+  demo: { href: p.href, label: p.linkLabel },
+  stack: p.stack ?? [],
+  order: p.order ?? 98,
+  href: p.href,
+}));
+
+const projects = [...repoCards, ...externalCards].sort((a, b) => a.order - b.order);
+---
+
+<section id="projects" class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-head__num">01</span>
+      <h2 class="section-head__title">Selected work</h2>
+      <span class="section-head__rule"></span>
+    </div>
+
+    <div class="feat">
+      {
+        projects.map((p, i) => (
+          <article class="feat__card card" data-reveal style={`--delay:${i * 70}ms`}>
+            <div class="feat__top">
+              <span class="feat__index mono">{String(i + 1).padStart(2, '0')}</span>
+              <h3 class="feat__title">
+                <a href={p.href} target="_blank" rel="noopener" class="feat__link">
+                  {p.title}
+                  <svg
+                    class="feat__arrow"
+                    viewBox="0 0 16 16"
+                    width="14"
+                    height="14"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="1.6"
+                    aria-hidden="true"
+                  >
+                    <path d="M4.5 11.5 11.5 4.5M6 4.5h5.5V10" />
+                  </svg>
+                </a>
+              </h3>
+            </div>
+
+            {p.metric && (
+              <div class="feat__metric">
+                <span class="feat__metric-value mono">{p.metric.value}</span>
+                <span class="feat__metric-label mono">{p.metric.label}</span>
+              </div>
+            )}
+
+            <p class="feat__blurb">{p.blurb}</p>
+
+            <ul class="feat__stack">
+              {p.stack.map((s) => (
+                <li class="chip">{s}</li>
+              ))}
+            </ul>
+
+            <footer class="feat__foot mono">
+              {
+                p.repo ? (
+                  <>
+                    <span class="feat__meta">
+                      <span class="dot" style={`--dot:${langColor(p.repo.language)}`} />
+                      {p.repo.language ?? 'mixed'}
+                    </span>
+
+                    <span class="feat__meta" data-repo-stars={p.name}>
+                      ★ {p.repo.stargazers_count}
+                    </span>
+
+                    <span class="feat__meta" data-relative={p.repo.pushed_at}>
+                      {relativeTime(p.repo.pushed_at)}
+                    </span>
+                  </>
+                ) : (
+                  <span class="feat__meta">
+                    <span class="dot" style="--dot:#38bdf8" />
+                    client work
+                  </span>
+                )
+              }
+
+              {p.demo && (
+                <a
+                  class="feat__demo"
+                  href={p.demo.href}
+                  target="_blank"
+                  rel="noopener"
+                >
+                  {p.demo.label}
+                </a>
+              )}
+            </footer>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .feat {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 1.1rem;
+  }
+
+  .feat__card {
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1.5rem 1.2rem;
+    transition-delay: var(--delay, 0ms);
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Accent sweep on hover — a thin line across the top edge. */
+  .feat__card::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(90deg, var(--accent), var(--cyan), transparent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s var(--ease);
+  }
+
+  .feat__card:hover::before {
+    transform: scaleX(1);
+  }
+
+  .feat__card:hover {
+    transform: translateY(-3px);
+  }
+
+  .feat__top {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    margin-bottom: 0.9rem;
+  }
+
+  .feat__index {
+    font-size: 0.72rem;
+    color: var(--accent);
+    flex: none;
+  }
+
+  .feat__title {
+    font-size: 1.18rem;
+    letter-spacing: -0.015em;
+  }
+
+  .feat__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    transition: color 0.2s var(--ease);
+  }
+
+  .feat__link:hover {
+    color: var(--accent);
+  }
+
+  .feat__arrow {
+    color: var(--fg-faint);
+    transition: transform 0.25s var(--ease), color 0.2s var(--ease);
+  }
+
+  .feat__link:hover .feat__arrow {
+    color: var(--accent);
+    transform: translate(2px, -2px);
+  }
+
+  .feat__metric {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding: 0.55rem 0.8rem;
+    margin-bottom: 1rem;
+    background: var(--bg-2);
+    border-left: 2px solid var(--accent);
+    border-radius: 0 var(--radius) var(--radius) 0;
+  }
+
+  .feat__metric-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -0.02em;
+  }
+
+  .feat__metric-label {
+    font-size: 0.7rem;
+    color: var(--fg-dim);
+  }
+
+  .feat__blurb {
+    flex: 1;
+    font-size: 0.9rem;
+    color: var(--fg-dim);
+    margin-bottom: 1.1rem;
+  }
+
+  .feat__stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    list-style: none;
+    padding: 0;
+    margin-bottom: 1.1rem;
+  }
+
+  .feat__foot {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    padding-top: 0.9rem;
+    font-size: 0.72rem;
+    color: var(--fg-faint);
+    border-top: 1px solid var(--line);
+  }
+
+  .feat__meta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .feat__demo {
+    margin-left: auto;
+    color: var(--cyan);
+    transition: color 0.2s var(--ease);
+  }
+
+  .feat__demo:hover {
+    color: #7dd3fc;
+    text-decoration: underline;
+  }
+
+  @media (max-width: 720px) {
+    .feat {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

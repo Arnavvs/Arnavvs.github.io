@@ -1,0 +1,65 @@
+---
+import { site } from '../data/site';
+import { getGitHubData } from '../lib/github';
+
+const data = await getGitHubData();
+const buildYear = new Date().getFullYear();
+---
+
+<footer class="foot">
+  <div class="wrap foot__inner">
+    <p class="foot__left mono">
+      © {buildYear} {site.name}
+      <span class="foot__sep">·</span>
+      built with Astro, deployed static
+    </p>
+
+    <p class="foot__right mono">
+      <span class="foot__sync" data-sync-status data-state={data.live ? 'live' : 'cached'}>
+        <span class="foot__sync-dot"></span>
+        <span data-sync-label>
+          {data.live ? 'data synced at build' : 'serving cached snapshot'}
+        </span>
+      </span>
+    </p>
+  </div>
+</footer>
+
+<style>
+  .foot {
+    border-top: 1px solid var(--line);
+    padding-block: 1.6rem;
+  }
+
+  .foot__inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6rem 1.5rem;
+    font-size: 0.73rem;
+    color: var(--fg-faint);
+  }
+
+  .foot__sep {
+    margin-inline: 0.5rem;
+    opacity: 0.5;
+  }
+
+  .foot__sync {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+  }
+
+  .foot__sync-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--fg-faint);
+  }
+
+  .foot__sync[data-state='live'] .foot__sync-dot {
+    background: var(--accent);
+  }
+</style>

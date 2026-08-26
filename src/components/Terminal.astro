@@ -1,0 +1,292 @@
+---
+import { site } from '../data/site';
+import { getGitHubData } from '../lib/github';
+import { OVERRIDES, EXTERNAL_PROJECTS, prettifyName } from '../data/projects';
+import { languageShare } from '../lib/format';
+
+const data = await getGitHubData();
+
+/**
+ * Compact payload for the shell. Serialized into a JSON script tag rather than
+ * inlined into JS so it stays data, and so the bundle doesn't grow with the
+ * repo list.
+ */
+const payload = {
+  user: site.name,
+  role: site.role,
+  location: site.location,
+  email: site.email,
+  links: site.links,
+  available: site.availableForWork ? site.availabilityNote : null,
+  langs: languageShare(data.languages, 6),
+  repoCount: data.repos.length,
+  joined: data.user.created_at.slice(0, 4),
+  repos: [
+    ...data.repos.map((r) => ({
+      name: r.name,
+      title: OVERRIDES[r.name]?.title ?? prettifyName(r.name),
+      blurb: OVERRIDES[r.name]?.blurb ?? r.description ?? '',
+      lang: r.language,
+      url: r.html_url,
+      pushed: r.pushed_at,
+    })),
+    // Repo-less work is listable too — `cat rma` should find something.
+    ...EXTERNAL_PROJECTS.map((p) => ({
+      name: p.linkLabel,
+      title: p.title,
+      blurb: p.blurb,
+      lang: p.stack?.[0] ?? 'client',
+      url: p.href,
+      pushed: '',
+    })),
+  ],
+};
+---
+
+<div class="tm" data-terminal hidden>
+  <div class="tm__scrim" data-terminal-close></div>
+
+  <div
+    class="tm__win"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Interactive terminal"
+  >
+    <div class="tm__bar">
+      <span class="tm__dots" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span class="tm__title mono">arnav@portfolio: ~</span>
+      <button class="tm__x mono" data-terminal-close aria-label="Close terminal">esc</button>
+    </div>
+
+    <div class="tm__screen" data-terminal-screen tabindex="-1">
+      <div class="tm__out" data-terminal-out></div>
+
+      <form class="tm__form" data-terminal-form>
+        <label class="tm__prompt mono" for="tm-input">
+          <span class="tm__user">arnav</span><span class="tm__at">@</span><span class="tm__host"
+            >portfolio</span
+          ><span class="tm__path">:~$</span>
+        </label>
+        <input
+          id="tm-input"
+          class="tm__input mono"
+          type="text"
+          data-terminal-input
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          aria-label="Terminal command"
+        />
+        <!-- Implicit submission (Enter with no submit button) is unreliable in
+             practice, so give the form a real one. Hidden, but keyboard- and
+             screen-reader-reachable. -->
+        <button type="submit" class="sr-only">Run command</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script is:inline type="application/json" data-terminal-data set:html={JSON.stringify(payload)} />
+
+<script>
+  import { bootTerminal } from '../scripts/terminal';
+  bootTerminal();
+</script>
+
+<style>
+  .tm {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    display: grid;
+    place-items: center;
+    padding: clamp(0.75rem, 4vw, 2.5rem);
+  }
+
+  .tm[hidden] {
+    display: none;
+  }
+
+  .tm__scrim {
+    position: absolute;
+    inset: 0;
+    background: rgba(3, 6, 7, 0.78);
+    backdrop-filter: blur(3px);
+    animation: fade 0.2s var(--ease);
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+  }
+
+  .tm__win {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: min(760px, 100%);
+    height: min(520px, 82vh);
+    background: var(--bg-1);
+    border: 1px solid var(--line-2);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 40px 90px -40px rgba(0, 0, 0, 1);
+    animation: rise 0.25s var(--ease);
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.99);
+    }
+  }
+
+  .tm__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.55rem 0.8rem;
+    background: var(--bg-2);
+    border-bottom: 1px solid var(--line);
+    flex: none;
+  }
+
+  .tm__dots {
+    display: flex;
+    gap: 6px;
+  }
+
+  .tm__dots i {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--bg-3);
+  }
+
+  .tm__title {
+    flex: 1;
+    font-size: 0.73rem;
+    color: var(--fg-faint);
+  }
+
+  .tm__x {
+    padding: 0.15rem 0.45rem;
+    font-size: 0.66rem;
+    color: var(--fg-faint);
+    border: 1px solid var(--line-2);
+    border-radius: 3px;
+    transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+  }
+
+  .tm__x:hover {
+    color: var(--fg);
+    border-color: var(--fg-faint);
+  }
+
+  .tm__screen {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem 1.1rem 1.1rem;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    line-height: 1.6;
+    cursor: text;
+  }
+
+  .tm__screen:focus {
+    outline: none;
+  }
+
+  .tm__form {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-top: 0.35rem;
+  }
+
+  .tm__prompt {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  .tm__user {
+    color: var(--accent);
+  }
+
+  .tm__at,
+  .tm__path {
+    color: var(--fg-faint);
+  }
+
+  .tm__host {
+    color: var(--cyan);
+  }
+
+  .tm__input {
+    flex: 1;
+    min-width: 0;
+    background: none;
+    border: none;
+    outline: none;
+    caret-color: var(--accent);
+  }
+
+  /* ---- output styling, driven by classes the script emits ---- */
+
+  .tm__out :global(.l) {
+    white-space: pre-wrap;
+    word-break: break-word;
+    color: var(--fg-dim);
+  }
+
+  .tm__out :global(.l--echo) {
+    color: var(--fg);
+    margin-top: 0.5rem;
+  }
+
+  .tm__out :global(.l--err) {
+    color: var(--rose);
+  }
+
+  .tm__out :global(.l--ok) {
+    color: var(--accent);
+  }
+
+  .tm__out :global(.l--dim) {
+    color: var(--fg-faint);
+  }
+
+  .tm__out :global(.l--head) {
+    color: var(--cyan);
+    margin-top: 0.6rem;
+  }
+
+  .tm__out :global(.k) {
+    color: var(--accent);
+  }
+
+  .tm__out :global(.c) {
+    color: var(--cyan);
+  }
+
+  .tm__out :global(.a) {
+    color: var(--amber);
+  }
+
+  .tm__out :global(a) {
+    color: var(--cyan);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  @media (max-width: 560px) {
+    .tm__win {
+      height: 80vh;
+    }
+
+    .tm__screen {
+      font-size: 0.74rem;
+    }
+  }
+</style>

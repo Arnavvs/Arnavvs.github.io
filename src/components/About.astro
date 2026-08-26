@@ -1,0 +1,160 @@
+---
+import { site } from '../data/site';
+import { getGitHubData } from '../lib/github';
+
+const data = await getGitHubData();
+const edu = site.education;
+---
+
+<section id="about" class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-head__num">05</span>
+      <h2 class="section-head__title">About</h2>
+      <span class="section-head__rule"></span>
+    </div>
+
+    <div class="about">
+      <div class="about__prose" data-reveal>
+        {site.about.map((p) => <p class="about__para">{p}</p>)}
+      </div>
+
+      <aside class="about__side" data-reveal>
+        <figure class="about__avatar">
+          <img
+            src={data.user.avatar_url}
+            alt={`${site.name} on GitHub`}
+            width="120"
+            height="120"
+            loading="lazy"
+            decoding="async"
+          />
+          <figcaption class="mono">@{data.user.login}</figcaption>
+        </figure>
+
+        <div class="edu">
+          <h3 class="edu__label mono">Education</h3>
+          <p class="edu__degree">{edu.degree}</p>
+          <p class="edu__school mono">{edu.school}</p>
+          <p class="edu__period mono">{edu.period}</p>
+          <ul class="edu__extras">
+            {
+              edu.extras.map((e) => (
+                <li class="edu__extra mono">
+                  <span class="edu__marker" aria-hidden="true">
+                    ▸
+                  </span>
+                  {e}
+                </li>
+              ))
+            }
+          </ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+  }
+
+  .about__para {
+    font-size: 1rem;
+    color: var(--fg-dim);
+    max-width: 64ch;
+  }
+
+  .about__para + .about__para {
+    margin-top: 1.1rem;
+  }
+
+  .about__side {
+    display: grid;
+    gap: 2rem;
+  }
+
+  .about__avatar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0;
+  }
+
+  .about__avatar img {
+    width: 74px;
+    height: 74px;
+    border-radius: 50%;
+    border: 1px solid var(--line-2);
+    filter: grayscale(1) contrast(1.05);
+    transition: filter 0.4s var(--ease);
+  }
+
+  .about__avatar:hover img {
+    filter: none;
+  }
+
+  .about__avatar figcaption {
+    font-size: 0.8rem;
+    color: var(--fg-faint);
+  }
+
+  .edu__label {
+    font-size: 0.68rem;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 0.7rem;
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .edu__degree {
+    font-size: 0.92rem;
+    color: var(--fg);
+    margin-bottom: 0.2rem;
+  }
+
+  .edu__school {
+    font-size: 0.79rem;
+    color: var(--fg-dim);
+  }
+
+  .edu__period {
+    font-size: 0.74rem;
+    color: var(--fg-faint);
+    margin-top: 0.15rem;
+  }
+
+  .edu__extras {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.3rem;
+    margin-top: 0.9rem;
+  }
+
+  .edu__extra {
+    display: grid;
+    grid-template-columns: 0.9rem minmax(0, 1fr);
+    gap: 0.35rem;
+    font-size: 0.75rem;
+    color: var(--fg-dim);
+  }
+
+  .edu__marker {
+    color: var(--fg-faint);
+    font-size: 0.6rem;
+  }
+
+  @media (max-width: 900px) {
+    .about {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

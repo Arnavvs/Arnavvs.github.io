@@ -1,0 +1,349 @@
+---
+import { getGitHubData } from '../lib/github';
+import { OVERRIDES, FEATURED, prettifyName } from '../data/projects';
+import { relativeTime, langColor } from '../lib/format';
+
+const data = await getGitHubData();
+const featured = new Set<string>(FEATURED);
+
+const rows = data.repos.map((r) => {
+  const o = OVERRIDES[r.name] ?? {};
+  return {
+    repo: r,
+    title: o.title ?? prettifyName(r.name),
+    blurb: o.blurb ?? r.description ?? '',
+    featured: featured.has(r.name),
+  };
+});
+
+/** Language filter pills, most-used first, only languages that actually appear. */
+const languages = [...new Set(rows.map((r) => r.repo.language).filter(Boolean))] as string[];
+const counts = new Map(
+  languages.map((l) => [l, rows.filter((r) => r.repo.language === l).length]),
+);
+languages.sort((a, b) => (counts.get(b) ?? 0) - (counts.get(a) ?? 0));
+---
+
+<section id="work" class="section">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-head__num">02</span>
+      <h2 class="section-head__title">Everything else</h2>
+      <span class="section-head__rule"></span>
+      <span class="section-head__count mono" data-repo-count>{rows.length} repos</span>
+    </div>
+
+    <p class="repos__note mono">
+      <span class="repos__dollar">$</span> ls ~/github — pulled from the GitHub API on every page
+      load, so this list is never out of date.
+    </p>
+
+    <!-- Controls. Progressive enhancement: with JS off you simply see every
+         repo, which is the correct fallback. -->
+    <div class="repos__controls" data-reveal>
+      <label class="repos__search">
+        <span class="repos__search-glyph mono" aria-hidden="true">/</span>
+        <input
+          type="search"
+          placeholder="filter repositories…"
+          data-repo-search
+          aria-label="Filter repositories by name or description"
+          autocomplete="off"
+          spellcheck="false"
+        />
+      </label>
+
+      <div class="repos__filters" role="group" aria-label="Filter by language">
+        <button class="filter mono is-active" data-repo-filter="all">all</button>
+        {
+          languages.map((l) => (
+            <button class="filter mono" data-repo-filter={l}>
+              <span class="dot" style={`--dot:${langColor(l)}`} />
+              {l}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <ul class="repos" data-repo-list>
+      {
+        rows.map((row, i) => (
+          <li
+            class="repo"
+            data-repo-item
+            data-lang={row.repo.language ?? ''}
+            data-search={`${row.repo.name} ${row.title} ${row.blurb}`.toLowerCase()}
+            data-reveal
+            style={`--delay:${Math.min(i, 8) * 40}ms`}
+          >
+            <a class="repo__link" href={row.repo.html_url} target="_blank" rel="noopener">
+              <span class="repo__lang">
+                <span class="dot" style={`--dot:${langColor(row.repo.language)}`} />
+              </span>
+
+              <span class="repo__main">
+                <span class="repo__name-row">
+                  <span class="repo__name mono">{row.repo.name}</span>
+                  {row.featured && <span class="repo__badge mono">featured</span>}
+                  {row.repo.archived && <span class="repo__badge repo__badge--dim mono">archived</span>}
+                </span>
+                {row.blurb && <span class="repo__blurb">{row.blurb}</span>}
+              </span>
+
+              <span class="repo__meta mono">
+                {row.repo.language && <span class="repo__meta-lang">{row.repo.language}</span>}
+                {row.repo.stargazers_count > 0 && (
+                  <span class="repo__stars">★ {row.repo.stargazers_count}</span>
+                )}
+                <span class="repo__time" data-relative={row.repo.pushed_at}>
+                  {relativeTime(row.repo.pushed_at)}
+                </span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="repos__empty mono" data-repo-empty hidden>
+      <span class="repos__dollar">$</span> no repositories match that filter.
+    </p>
+  </div>
+</section>
+
+<style>
+  .section-head__count {
+    font-size: 0.72rem;
+    color: var(--fg-faint);
+    white-space: nowrap;
+  }
+
+  .repos__note {
+    font-size: 0.76rem;
+    color: var(--fg-faint);
+    margin-bottom: 1.6rem;
+    max-width: 70ch;
+  }
+
+  .repos__dollar {
+    color: var(--accent);
+    margin-right: 0.35rem;
+  }
+
+  /* ---------- controls ---------- */
+
+  .repos__controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.8rem;
+    margin-bottom: 1.4rem;
+  }
+
+  .repos__search {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex: 1 1 220px;
+    max-width: 300px;
+    padding: 0.45rem 0.75rem;
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    transition: border-color 0.2s var(--ease);
+  }
+
+  .repos__search:focus-within {
+    border-color: var(--line-2);
+  }
+
+  .repos__search-glyph {
+    color: var(--accent);
+    font-size: 0.85rem;
+  }
+
+  .repos__search input {
+    flex: 1;
+    min-width: 0;
+    font-family: var(--mono);
+    font-size: 0.8rem;
+    background: none;
+    border: none;
+    outline: none;
+  }
+
+  .repos__search input::placeholder {
+    color: var(--fg-faint);
+  }
+
+  .repos__search input::-webkit-search-cancel-button {
+    filter: grayscale(1) opacity(0.5);
+  }
+
+  .repos__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .filter {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.35rem 0.7rem;
+    font-size: 0.73rem;
+    color: var(--fg-faint);
+    background: var(--bg-1);
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    transition: color 0.2s var(--ease), border-color 0.2s var(--ease);
+  }
+
+  .filter:hover {
+    color: var(--fg-dim);
+    border-color: var(--line-2);
+  }
+
+  .filter.is-active {
+    color: var(--accent);
+    border-color: rgba(74, 222, 128, 0.4);
+    background: rgba(74, 222, 128, 0.06);
+  }
+
+  /* ---------- list ---------- */
+
+  .repos {
+    list-style: none;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .repo {
+    border-bottom: 1px solid var(--line);
+    transition-delay: var(--delay, 0ms);
+  }
+
+  .repo[hidden] {
+    display: none;
+  }
+
+  .repo__link {
+    display: grid;
+    grid-template-columns: 14px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.85rem 0.6rem;
+    transition: background-color 0.2s var(--ease), padding-left 0.2s var(--ease);
+  }
+
+  .repo__link:hover {
+    background: var(--bg-1);
+    padding-left: 1rem;
+  }
+
+  .repo__lang {
+    display: grid;
+    place-items: center;
+  }
+
+  .repo__main {
+    display: grid;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+
+  .repo__name-row {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  .repo__name {
+    font-size: 0.88rem;
+    color: var(--fg);
+    transition: color 0.2s var(--ease);
+  }
+
+  .repo__link:hover .repo__name {
+    color: var(--accent);
+  }
+
+  .repo__badge {
+    padding: 0.05rem 0.4rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid rgba(74, 222, 128, 0.35);
+    border-radius: 3px;
+  }
+
+  .repo__badge--dim {
+    color: var(--fg-faint);
+    border-color: var(--line-2);
+  }
+
+  .repo__blurb {
+    font-size: 0.81rem;
+    color: var(--fg-faint);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+
+  .repo__meta {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    font-size: 0.71rem;
+    color: var(--fg-faint);
+    white-space: nowrap;
+  }
+
+  .repo__meta-lang {
+    min-width: 92px;
+    text-align: right;
+  }
+
+  .repo__stars {
+    color: var(--amber);
+  }
+
+  .repo__time {
+    min-width: 88px;
+    text-align: right;
+  }
+
+  .repos__empty {
+    padding: 2rem 0.6rem;
+    font-size: 0.8rem;
+    color: var(--fg-faint);
+  }
+
+  @media (max-width: 760px) {
+    .repo__link {
+      grid-template-columns: 14px minmax(0, 1fr);
+      row-gap: 0.4rem;
+    }
+
+    .repo__meta {
+      grid-column: 2;
+      gap: 0.9rem;
+    }
+
+    .repo__meta-lang,
+    .repo__time {
+      min-width: 0;
+      text-align: left;
+    }
+
+    .repo__blurb {
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+    }
+  }
+</style>

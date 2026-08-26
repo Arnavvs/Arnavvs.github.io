@@ -1,0 +1,368 @@
+---
+// Wordle, scored against the solvers from the Qwen_wordle_sft project.
+//
+// The board and keyboard are rendered HERE rather than by the script, for two
+// reasons: Astro scopes component CSS to elements that exist at build time, so
+// JS-created nodes would get no styling at all; and this way the board is on
+// screen before the script runs.
+const ROWS = 6;
+const COLS = 5;
+const KEY_ROWS = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
+---
+
+<section id="play" class="section section--tight">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="section-head__num">07</span>
+      <h2 class="section-head__title">Play</h2>
+      <span class="section-head__rule"></span>
+    </div>
+
+    <div class="game" data-game data-reveal>
+      <div class="game__intro">
+        <h3 class="game__title">Can you beat the solver?</h3>
+        <p class="game__sub">
+          A classical Wordle solver averages <b>3.44</b> guesses. I distilled it into a 0.5B
+          model that gets to <b>3.76</b>. Six tries — see where you land.
+        </p>
+        <p class="game__hint mono">
+          type on your keyboard, or tap below · one word a day, same for everyone
+        </p>
+      </div>
+
+      <div class="game__play">
+        <div class="game__board" data-game-board role="grid" aria-label="Wordle board">
+          {
+            Array.from({ length: ROWS }, (_, r) => (
+              <div class="game__row" data-row={r} role="row">
+                {Array.from({ length: COLS }, () => (
+                  <div class="game__cell mono" data-filled="no" role="gridcell" />
+                ))}
+              </div>
+            ))
+          }
+        </div>
+
+        <p class="game__msg mono" data-game-msg role="status" aria-live="polite"></p>
+
+        <div class="game__keys" data-game-keys>
+          {
+            KEY_ROWS.map((letters, i) => (
+              <div class="game__keyrow">
+                {i === 2 && (
+                  <button class="game__key game__key--wide mono" data-key="enter" type="button">
+                    ENTER
+                  </button>
+                )}
+                {letters.split('').map((ch) => (
+                  <button class="game__key mono" data-key={ch} type="button">
+                    {ch.toUpperCase()}
+                  </button>
+                ))}
+                {i === 2 && (
+                  <button
+                    class="game__key game__key--wide mono"
+                    data-key="back"
+                    type="button"
+                    aria-label="Backspace"
+                  >
+                    ⌫
+                  </button>
+                )}
+              </div>
+            ))
+          }
+        </div>
+
+        <div class="game__result" data-game-result hidden></div>
+
+        <button class="btn mono game__reset" data-game-reset type="button" hidden>
+          play a random word →
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { bootGame } from '../scripts/game';
+  bootGame();
+</script>
+
+<style>
+  .game {
+    display: grid;
+    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: start;
+    padding: clamp(1.5rem, 3.5vw, 2.5rem);
+    background: linear-gradient(180deg, var(--bg-1), transparent);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+  }
+
+  /* ---------- left: the pitch ---------- */
+
+  .game__title {
+    font-size: clamp(1.25rem, 2.4vw, 1.65rem);
+    margin-bottom: 0.7rem;
+  }
+
+  .game__sub {
+    font-size: 0.93rem;
+    color: var(--fg-dim);
+    max-width: 42ch;
+    margin-bottom: 1rem;
+  }
+
+  .game__sub b {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .game__hint {
+    font-size: 0.72rem;
+    color: var(--fg-faint);
+  }
+
+  /* ---------- right: the board ---------- */
+
+  .game__play {
+    display: grid;
+    justify-items: center;
+    gap: 0.6rem;
+  }
+
+  .game__board {
+    display: grid;
+    gap: 5px;
+  }
+
+  .game__row {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+  }
+
+  .game__row.is-invalid {
+    animation: shake 0.4s var(--ease);
+  }
+
+  @keyframes shake {
+    10%, 90% { transform: translateX(-2px); }
+    20%, 80% { transform: translateX(4px); }
+    30%, 50%, 70% { transform: translateX(-6px); }
+    40%, 60% { transform: translateX(6px); }
+  }
+
+  .game__cell {
+    display: grid;
+    place-items: center;
+    width: clamp(38px, 8vw, 50px);
+    aspect-ratio: 1;
+    font-size: clamp(1.05rem, 2.4vw, 1.4rem);
+    font-weight: 700;
+    color: var(--fg);
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    transition: background-color 0.35s var(--ease), border-color 0.35s var(--ease),
+      transform 0.2s var(--ease);
+  }
+
+  .game__cell[data-filled='yes'] {
+    border-color: var(--line-2);
+    transform: scale(1.04);
+  }
+
+  .game__cell[data-mark='hit'] {
+    color: var(--bg);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .game__cell[data-mark='near'] {
+    color: var(--bg);
+    background: var(--amber);
+    border-color: var(--amber);
+  }
+
+  .game__cell[data-mark='miss'] {
+    color: var(--fg-faint);
+    background: var(--bg-2);
+    border-color: var(--bg-3);
+  }
+
+  .game__msg {
+    min-height: 1.2rem;
+    font-size: 0.76rem;
+    color: var(--fg-dim);
+    text-align: center;
+  }
+
+  .game__msg[data-tone='error'] {
+    color: var(--rose);
+  }
+
+  /* ---------- keyboard ---------- */
+
+  .game__keys {
+    display: grid;
+    gap: 5px;
+    width: 100%;
+    max-width: 420px;
+  }
+
+  .game__keyrow {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  .game__key {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 0.6rem 0.2rem;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--fg-dim);
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 3px;
+    transition: background-color 0.2s var(--ease), color 0.2s var(--ease),
+      border-color 0.2s var(--ease);
+  }
+
+  .game__key:hover {
+    color: var(--fg);
+    border-color: var(--line-2);
+  }
+
+  .game__key--wide {
+    flex: 1.6 1 auto;
+    font-size: 0.62rem;
+    letter-spacing: 0.06em;
+  }
+
+  .game__key[data-mark='hit'] {
+    color: var(--bg);
+    background: var(--accent);
+    border-color: var(--accent);
+  }
+
+  .game__key[data-mark='near'] {
+    color: var(--bg);
+    background: var(--amber);
+    border-color: var(--amber);
+  }
+
+  .game__key[data-mark='miss'] {
+    color: var(--fg-faint);
+    background: var(--bg);
+    border-color: var(--bg-3);
+  }
+
+  /* ---------- result ---------- */
+
+  .game__result {
+    width: 100%;
+    max-width: 420px;
+    padding: 1rem 1.1rem;
+    background: var(--bg-2);
+    border: 1px solid var(--line-2);
+    border-radius: var(--radius);
+    animation: rise 0.3s var(--ease);
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+  }
+
+  .game__result :global(.game__verdict) {
+    font-size: 0.9rem;
+    color: var(--fg);
+    margin-bottom: 0.9rem;
+  }
+
+  .game__result :global(.game__verdict[data-won='true']) {
+    color: var(--accent);
+  }
+
+  .game__result :global(.game__verdict[data-won='false']) {
+    color: var(--rose);
+  }
+
+  .game__result :global(.game__verdict b) {
+    font-size: 1.1rem;
+  }
+
+  .game__result :global(.game__bench-head) {
+    font-size: 0.63rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    padding-bottom: 0.4rem;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 0.5rem;
+  }
+
+  .game__result :global(.game__benches) {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.3rem;
+  }
+
+  .game__result :global(.game__bench) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 0.8rem;
+    align-items: baseline;
+    font-size: 0.76rem;
+    color: var(--fg-dim);
+  }
+
+  .game__result :global(.game__bench-score) {
+    color: var(--fg);
+  }
+
+  .game__result :global(.game__bench-verdict) {
+    font-size: 0.66rem;
+    color: var(--fg-faint);
+    min-width: 4.5em;
+    text-align: right;
+  }
+
+  .game__result :global(.game__bench[data-beat='true'] .game__bench-verdict) {
+    color: var(--accent);
+  }
+
+  .game__result :global(.game__footnote) {
+    margin-top: 0.9rem;
+    padding-top: 0.7rem;
+    font-size: 0.68rem;
+    color: var(--fg-faint);
+    border-top: 1px solid var(--line);
+  }
+
+  .game__result :global(.game__footnote a) {
+    color: var(--cyan);
+  }
+
+  .game__result :global(.game__footnote a:hover) {
+    text-decoration: underline;
+  }
+
+  .game__reset {
+    font-size: 0.76rem;
+  }
+
+  @media (max-width: 860px) {
+    .game {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

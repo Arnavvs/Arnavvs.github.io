@@ -1,0 +1,199 @@
+---
+import { getGitHubData } from '../lib/github';
+import { languageShare, langColor, relativeTime } from '../lib/format';
+
+const data = await getGitHubData();
+const langs = languageShare(data.languages, 6);
+const totalBytes = Object.values(data.languages).reduce((a, b) => a + b, 0);
+
+const yearsActive = Math.max(
+  1,
+  Math.round(
+    (Date.now() - new Date(data.user.created_at).getTime()) / (1000 * 60 * 60 * 24 * 365.25),
+  ),
+);
+
+const stats = [
+  { key: 'repos', value: String(data.repos.length), label: 'public repos' },
+  { key: 'langs', value: String(Object.keys(data.languages).length), label: 'languages' },
+  { key: 'years', value: `${yearsActive}y`, label: 'on GitHub' },
+  {
+    key: 'push',
+    value: data.repos[0] ? relativeTime(data.repos[0].pushed_at) : '—',
+    label: 'last push',
+    iso: data.repos[0]?.pushed_at,
+  },
+];
+---
+
+<section class="strip">
+  <div class="wrap">
+    <div class="strip__grid">
+      <dl class="stats" data-reveal>
+        {
+          stats.map((s) => (
+            <div class="stat">
+              <dt class="stat__label mono">{s.label}</dt>
+              <dd
+                class="stat__value mono"
+                data-stat={s.key}
+                data-relative={s.iso ?? undefined}
+              >
+                {s.value}
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+
+      <div class="langs" data-reveal>
+        <p class="langs__head mono">
+          <span class="langs__dollar">$</span> tokei --all
+          <span class="langs__total">{(totalBytes / 1_000_000).toFixed(1)} MB</span>
+        </p>
+
+        <div
+          class="langs__bar"
+          role="img"
+          aria-label={`Language breakdown: ${langs.map((l) => `${l.name} ${l.pct}%`).join(', ')}`}
+        >
+          {
+            langs.map((l) => (
+              <span
+                class="langs__seg"
+                style={`width:${l.pct}%;--dot:${langColor(l.name)}`}
+                title={`${l.name} — ${l.pct}%`}
+              />
+            ))
+          }
+        </div>
+
+        <ul class="langs__key mono">
+          {
+            langs.map((l) => (
+              <li class="langs__item">
+                <span class="dot" style={`--dot:${langColor(l.name)}`} />
+                {l.name}
+                <b>{l.pct}%</b>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .strip {
+    padding-block: 2rem 1rem;
+    border-block: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(16, 23, 26, 0.55), transparent);
+  }
+
+  .strip__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+    gap: clamp(1.5rem, 4vw, 3.5rem);
+    align-items: center;
+    padding-block: 1.4rem;
+  }
+
+  /* ---------- stats ---------- */
+
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1rem;
+    margin: 0;
+  }
+
+  .stat__label {
+    font-size: 0.66rem;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+    color: var(--fg-faint);
+    margin-bottom: 0.3rem;
+  }
+
+  .stat__value {
+    margin: 0;
+    font-size: clamp(1.05rem, 1.7vw, 1.35rem);
+    font-weight: 500;
+    color: var(--fg);
+    line-height: 1.2;
+  }
+
+  /* ---------- language bar ---------- */
+
+  .langs__head {
+    display: flex;
+    align-items: baseline;
+    gap: 0.45rem;
+    font-size: 0.74rem;
+    color: var(--fg-faint);
+    margin-bottom: 0.6rem;
+  }
+
+  .langs__dollar {
+    color: var(--accent);
+  }
+
+  .langs__total {
+    margin-left: auto;
+    color: var(--fg-dim);
+  }
+
+  .langs__bar {
+    display: flex;
+    height: 7px;
+    border-radius: 999px;
+    overflow: hidden;
+    background: var(--bg-2);
+  }
+
+  .langs__seg {
+    height: 100%;
+    background: var(--dot);
+    transition: filter 0.2s var(--ease);
+  }
+
+  .langs__seg:hover {
+    filter: brightness(1.35);
+  }
+
+  .langs__key {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 1.1rem;
+    list-style: none;
+    padding: 0;
+    margin-top: 0.75rem;
+    font-size: 0.72rem;
+    color: var(--fg-dim);
+  }
+
+  .langs__item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .langs__item b {
+    color: var(--fg-faint);
+    font-weight: 400;
+  }
+
+  @media (max-width: 860px) {
+    .strip__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .stats {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.2rem;
+    }
+  }
+</style>
