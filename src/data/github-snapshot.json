@@ -5,11 +5,71 @@
     "bio": null,
     "avatar_url": "https://avatars.githubusercontent.com/u/121120601?v=4",
     "html_url": "https://github.com/Arnavvs",
-    "public_repos": 24,
+    "public_repos": 28,
     "followers": 0,
     "created_at": "2022-12-20T16:53:23Z"
   },
   "repos": [
+    {
+      "name": "ClaudePhone",
+      "description": null,
+      "html_url": "https://github.com/Arnavvs/ClaudePhone",
+      "homepage": null,
+      "language": "Python",
+      "stargazers_count": 1,
+      "forks_count": 0,
+      "size": 227,
+      "topics": [],
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-09-05T16:08:37Z",
+      "created_at": "2026-09-03T09:19:06Z"
+    },
+    {
+      "name": "MobileAgentMCP",
+      "description": null,
+      "html_url": "https://github.com/Arnavvs/MobileAgentMCP",
+      "homepage": null,
+      "language": "Python",
+      "stargazers_count": 1,
+      "forks_count": 0,
+      "size": 272,
+      "topics": [],
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-09-05T16:08:30Z",
+      "created_at": "2026-09-01T14:28:56Z"
+    },
+    {
+      "name": "sportfolio",
+      "description": null,
+      "html_url": "https://github.com/Arnavvs/sportfolio",
+      "homepage": "https://soumyagarg.vercel.app",
+      "language": "CSS",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "size": 215,
+      "topics": [],
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-31T17:23:48Z",
+      "created_at": "2026-08-28T20:03:13Z"
+    },
+    {
+      "name": "Arnavvs.github.io",
+      "description": null,
+      "html_url": "https://github.com/Arnavvs/Arnavvs.github.io",
+      "homepage": null,
+      "language": "TypeScript",
+      "stargazers_count": 0,
+      "forks_count": 0,
+      "size": 172,
+      "topics": [],
+      "fork": false,
+      "archived": false,
+      "pushed_at": "2026-08-26T19:39:07Z",
+      "created_at": "2026-08-26T16:01:26Z"
+    },
     {
       "name": "Qwen_wordle_sft",
       "description": null,
@@ -313,61 +373,93 @@
   ],
   "events": [
     {
-      "type": "DeleteEvent",
-      "repo": "Qwen_wordle_sft",
-      "created_at": "2026-08-25T21:38:31Z",
+      "type": "CreateEvent",
+      "repo": "MobileAgentMCP",
+      "created_at": "2026-09-04T13:15:08Z",
+      "detail": null
+    },
+    {
+      "type": "CreateEvent",
+      "repo": "ClaudePhone",
+      "created_at": "2026-09-03T21:35:13Z",
       "detail": null
     },
     {
       "type": "PushEvent",
-      "repo": "Qwen_wordle_sft",
-      "created_at": "2026-08-25T21:21:18Z",
+      "repo": "MobileAgentMCP",
+      "created_at": "2026-09-03T20:52:51Z",
       "detail": null
     },
     {
       "type": "PushEvent",
-      "repo": "Qwen_wordle_sft",
-      "created_at": "2026-08-25T21:17:36Z",
+      "repo": "MobileAgentMCP",
+      "created_at": "2026-09-03T20:48:37Z",
       "detail": null
     },
     {
       "type": "PushEvent",
-      "repo": "Qwen_wordle_sft",
-      "created_at": "2026-08-25T21:07:43Z",
+      "repo": "MobileAgentMCP",
+      "created_at": "2026-09-03T18:51:30Z",
       "detail": null
     },
     {
       "type": "PushEvent",
-      "repo": "Qwen_wordle_sft",
-      "created_at": "2026-08-25T20:39:28Z",
-      "detail": null
-    },
-    {
-      "type": "PublicEvent",
-      "repo": "Qwen_wordle_sft",
-      "created_at": "2026-08-22T22:34:39Z",
+      "repo": "MobileAgentMCP",
+      "created_at": "2026-09-03T18:34:38Z",
       "detail": null
     },
     {
       "type": "PushEvent",
-      "repo": "Opinion-Clustring",
-      "created_at": "2026-08-05T13:04:42Z",
+      "repo": "MobileAgentMCP",
+      "created_at": "2026-09-03T17:01:12Z",
+      "detail": null
+    },
+    {
+      "type": "PushEvent",
+      "repo": "MobileAgentMCP",
+      "created_at": "2026-09-03T16:47:52Z",
+      "detail": null
+    },
+    {
+      "type": "PushEvent",
+      "repo": "MobileAgentMCP",
+      "created_at": "2026-09-03T16:44:38Z",
+      "detail": null
+    },
+    {
+      "type": "PushEvent",
+      "repo": "MobileAgentMCP",
+      "created_at": "2026-09-03T16:41:14Z",
+      "detail": null
+    },
+    {
+      "type": "PushEvent",
+      "repo": "MobileAgentMCP",
+      "created_at": "2026-09-03T16:31:58Z",
+      "detail": null
+    },
+    {
+      "type": "CreateEvent",
+      "repo": "MobileAgentMCP",
+      "created_at": "2026-09-03T16:24:29Z",
       "detail": null
     }
   ],
   "languages": {
-    "Python": 2241798,
+    "Python": 2883466,
+    "Java": 16519,
+    "Shell": 14413,
     "Jupyter Notebook": 6991747,
-    "HTML": 289003,
-    "Batchfile": 4093,
-    "JavaScript": 184586,
-    "Procfile": 86,
+    "HTML": 309422,
+    "CSS": 42100,
+    "JavaScript": 192900,
+    "TypeScript": 319176,
+    "Astro": 78294,
     "Dockerfile": 1371,
-    "CSS": 6071,
-    "Shell": 623,
-    "TypeScript": 238271,
+    "Batchfile": 4093,
+    "Procfile": 86,
     "C++": 11363
   },
-  "fetchedAt": "2026-08-26T15:32:36.577Z",
+  "fetchedAt": "2026-09-06T12:30:27.039Z",
   "live": false
 }

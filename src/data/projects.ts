@@ -24,8 +24,9 @@ export interface ProjectOverride {
   order?: number;
 }
 
-/** The four repo-backed projects that lead the page, in order. */
+/** The repo-backed projects that lead the page, in order. */
 export const FEATURED = [
+  'ClaudePhone',
   'Qwen_wordle_sft',
   'agentwall',
   'Opinion-Clustring',
@@ -62,6 +63,36 @@ export const EXTERNAL_PROJECTS: ExternalProject[] = [
 ];
 
 export const OVERRIDES: Record<string, ProjectOverride> = {
+  ClaudePhone: {
+    title: 'ClaudePhone',
+    blurb:
+      'Claude Code for a handset: an agent that runs on your Android phone and drives it — reading the screen as structured data, then tapping, typing and swiping. Works on a stock unrooted device by having Termux talk to adbd over loopback.',
+    metric: { value: 'On-device', label: 'unrooted · no Shizuku · no root' },
+    stack: ['Python', 'Android', 'ADB', 'Termux', 'Tool calling'],
+    order: 0,
+  },
+
+  MobileAgentMCP: {
+    title: 'MobileAgentMCP',
+    blurb:
+      'An MCP server that drives a real Android phone, returning each screen as structured UI elements — 1–3 KB of typed JSON instead of 70 KB of raw uiautomator XML, so it never blows up an agent’s context.',
+    stack: ['MCP', 'Python', 'Android', 'uiautomator'],
+  },
+
+  sportfolio: {
+    title: 'Portfolio for a Content Writer',
+    blurb:
+      'A static one-pager built for a content writer, with an interactive “hook machine” that doubles as a live writing sample.',
+    stack: ['HTML', 'CSS', 'JavaScript'],
+  },
+
+  'Arnavvs.github.io': {
+    title: 'This Site',
+    blurb:
+      'The source for this page — static Astro, GitHub data fetched at build time and refreshed live in the browser, and two games.',
+    stack: ['Astro', 'TypeScript', 'GitHub Actions'],
+  },
+
   Qwen_wordle_sft: {
     title: 'Distilling a Solver into a 0.5B Model',
     blurb:
