@@ -130,7 +130,7 @@ EXPERIENCE = [
                 "fuzzy-matched against the SAP vendor master — <b>~95%</b> automated resolution, with a "
                 "Streamlit human-in-the-loop review app for the remaining ambiguous cases.",
                 "Engineered a historical-resolution cache reusing confirmed mappings to cut LLM token cost "
-                "<b>~60%</b>; deployed on Databricks (sourcing from SharePoint) with automated monthly refresh. "
+                "<b>~60%</b>; deployed on Databricks (sourcing from SharePoint), refreshed monthly. "
                 "Clustered transactions by commodity and service type for the first commodity-level view of "
                 "P-Card spend.",
             ]),
@@ -166,6 +166,16 @@ EXPERIENCE = [
 
 PROJECTS = [
     {
+        "name": "edgeinfer — LLM Inference Engine &amp; Data Analyst, written from scratch",
+        "stack": "C++17 · AVX2 · Python · FastAPI · Qwen3.5 · FAISS · github.com/Arnavvs/edgeinfer",
+        "points": [
+            "C++ engine for Qwen3.5's hybrid Gated-DeltaNet models (AVX2 int8 kernels, recurrent-state "
+            "caching), matched to Hugging Face at KL ≈ 1e-7; on a 2017 laptop CPU it beats llama.cpp and Ollama "
+            "(<b>+11%</b> prefill, <b>+8%</b> decode, <b>25%</b> less RAM); lossless MTP drafting adds <b>+45%</b>.",
+            "OpenAI-compatible server (SSE, tool calls, batching) behind a public SQL + hybrid-RAG analyst: <b>12/12</b> on a SQL-verified eval.",
+        ],
+    },
+    {
         "name": "Wordle Distillation — Compressing a Symbolic Solver into a 0.5B LLM",
         "stack": "PyTorch · TRL · Qwen2.5-0.5B · SFT · Constrained decoding",
         "points": [
@@ -194,9 +204,7 @@ PROJECTS = [
         "name": "Project Samarth — Natural-Language Analytics Agent over National Open Data",
         "stack": "Python · pandas · LangChain · LangGraph · Gemini · SQLite · Streamlit",
         "points": [
-            "End-to-end Q&amp;A over India's agricultural-economy and climate data: scripted fetchers pull "
-            "data.gov.in CSVs into a normalized SQLite warehouse with query logging so every answer is "
-            "auditable; a LangGraph SQL agent plans, generates and executes SQL, then synthesizes an answer.",
+            "LangGraph SQL agent that plans, writes and runs SQL over a query-logged SQLite warehouse of data.gov.in data.",
         ],
     },
 ]

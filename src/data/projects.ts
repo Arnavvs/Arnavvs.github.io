@@ -26,6 +26,7 @@ export interface ProjectOverride {
 
 /** The repo-backed projects that lead the page, in order. */
 export const FEATURED = [
+  'edgeinfer',
   'ClaudePhone',
   'Qwen_wordle_sft',
   'agentwall',
@@ -63,6 +64,16 @@ export const EXTERNAL_PROJECTS: ExternalProject[] = [
 ];
 
 export const OVERRIDES: Record<string, ProjectOverride> = {
+  edgeinfer: {
+    title: 'edgeinfer — an LLM Inference Engine from Scratch',
+    blurb:
+      'A C++ inference engine and OpenAI-compatible server for Qwen3.5’s hybrid Gated-DeltaNet architecture, built for a 2017 dual-core laptop with no GPU. On that machine it beats llama.cpp and Ollama, adds +45% with lossless self-speculative decoding, and powers a live SQL + RAG data analyst.',
+    metric: { value: '+11% / +45%', label: 'prefill vs llama.cpp · decode with drafting' },
+    stack: ['C++', 'AVX2', 'Quantization', 'Speculative decoding', 'FastAPI', 'RAG', 'FAISS'],
+    demo: { href: 'https://orchestrator.taila27abc.ts.net:8443/', label: 'Live demo · runs on the laptop' },
+    order: -1,
+  },
+
   ClaudePhone: {
     title: 'ClaudePhone',
     blurb:
